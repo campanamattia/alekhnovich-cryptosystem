@@ -1,0 +1,32 @@
+\section{Alekhnovich's Cryptosystem}
+\subsection{Overview}
+The purpose of this paper is not to explain in detail the operation of Alekhnovich's algorithm and why, unlike those currently implemented, it could offer advantages in the face of quantum computers. To better understand the various steps, it is necessary to provide an overview of its operation:
+\subparagraph{The Algorithm} The algoritm begins by generating two random matrices, $A\in \mathbb{Z}^{k\times n}_2$ and $S\in \mathbb{Z}^{l\times k}_2$. After, it generates a third random matrix, $E\in \mathbb{Z}^{l\times n}_2$. The rows of E are chosen from random and independent vectors of weight $t$ (the wheigth is computed as $\sqrt{n}$).The algorithm then defines the matrix $Y$ as $Y = SA + E$.
+
+
+The matrices $Y$ and $A$ represent the public key of the algorithm. The public key is shared with anyone who wants to send encrypted messages to the sender.
+The plaintext to encrypt space is $\mathbb{M} = C \subset \{0,1\}^l $ where $C$ is an error-correcting code. The error-correcting code implies an algoritm used to ensure that the message can be recovered even if it is corrupted by noise.
+Now following steps are required for a secure exchange of informations:
+\begin{itemize}
+ \item To encrypt the message, the sender performs the following steps:
+    \begin{enumerate}
+     \item The sender generates a random $t$-weight vector $e$ of $\mathbb{F}_2^n $.
+     \item The sender multiplies $e^T$ by the public key $Y$ and $A$.
+     \item The sender adds the message $m$ to the result of the multiplication $Ye^T$.
+    \end{enumerate}
+    The encrypted message is then given by the following vector: $$C(m) = (Ae^T, m+Ye^T)$$.
+    \item To decrypt the message, the receiver performs the following steps:
+    \begin{enumerate}
+     \item The receiver multiplies the first part of the encrypted message, $Ae^T$, by the secret key $S$ getting $SAe^T = Ye^T-Ee^T $.
+     \item The receiver subtracts from the second part of the encrypted message, $m+Ye^T$, the result of the previus multiplication.
+    \end{enumerate}
+    Now the receiver finds itself with a vector of the type: $$(m+Ye^T) - (Ye^T-Ee^T) = m + Ee^T$$
+\end{itemize}
+The algorithm works by exploiting the fact that the product of the matrix $E$ and the vector $e$ of weight $t$ is likely to be zero. This is due to the random positions of the fews 1s in both both the rows of $E$ and the vector $e$; the probability that even just one of these coincides is very low.
+In the worst case, the code will distance itself from the original with a maximum Hamming distance of $t$, which is managable with the error-correcting algorithm of the chosen code.
+
+\subsection{Keys Generation}
+\subsection{Code Generation}
+\subsection{Encryption}
+\subsection{Decryption}
+\subsection{Error Code}

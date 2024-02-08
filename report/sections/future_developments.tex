@@ -1,0 +1,12 @@
+\section{Future Developments}
+The core concept of public-key cryptography revolves around the ability to make one key publicly accessible, allowing anyone to encrypt outgoing messages. At the same time, only the entity in possession of the private key has the capability to decrypt and restore the original message. This innovative concept greatly simplifies the process of entities reaching a consensus on a private key. It now facilitates secure communication through each other's public keys, even in the absence of prior contact, streamlining the establishment of secure communication.
+
+Quantum computing brings forth the concept of qubits, which are the fundamental units of quantum information, and utilizes the phenomenon of superposition. In superposition, qubits can exist in multiple states simultaneously. However, the act of observation collapses these states, revealing only one state while discarding the others.
+
+A significant breakthrough in this context is the Quantum Fourier transform. When a superposition is periodic, it displays a distinct and identifiable frequency.
+
+Now, regarding RSA versus Quantum Computing: RSA security relies on the discrete logarithm problem, which entails the computational infeasibility of solving a logarithm within modular arithmetic. This problem involves finding the exponent (logarithm) to which a given number (the base) must be raised modulo a prime number (the modulus) to obtain another specified number. This becomes computationally infeasible for classical computers when the values of these variables are chosen to be sufficiently large and random.
+
+While various methods have been known to expedite the breaking of RSA, such as Baby Step Giant Step, these have been impractical due to the considerable time required. However, the use of quantum computers offers a significant advantage when it comes to determining the exponent for the initial 'bad guess,' as it addresses the challenge of finding the period at which the remainders of $g^x = y$ (mod N) repeat. A quantum Fourier transform, by observing a random remainder, reveals a repeating pattern or period within the states, leading to a potential breakthrough in solving this problem.
+
+Despite the need for a substantial number of qubits, which is decreasing over time due to advancements in technology, there is an urgent need to develop post-quantum cryptographic solutions to enhance our digital security in response to this evolving threat landscape.

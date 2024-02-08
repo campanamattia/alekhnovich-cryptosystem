@@ -1,0 +1,64 @@
+\section{Theoretical Foundamentals}
+To address the imminent threat posed by quantum computers, the computer science community has long been engaged in the quest for alternatives to current symmetric and asymmetric encryption algorithms. Concerning the latter, various proposals have been presented to the public and the community, yet only a few have been recognized as valid and genuinely effective against quantum computers. As for other algorithms, we have thus far been unable to demonstrate either their efficacy or inefficacy in the face of quantum computers. Among these is the Alekhnovich cryptosystem, the focus of our exploration in this treatise.
+
+To delve deeper into this cryptosystem, it is undoubtedly essential to introduce several concepts from the fields of coding theory and geometry and linear algebra. This introduction will enhance the comprehensibility of its implementation, both in terms of logic and procedures.
+
+\subsection{Linear Algebra}
+Linear algebra, a cornerstone of mathematics, delves into the analysis of vector spaces and their transformations. Its significance lies in its wide-ranging applications, encompassing the solution of systems of linear equations and the exploration of multidimensional objects in space. To undertake these analyses, linear algebra employs a diverse toolkit, including vector spaces, linear equations, and matrices.
+
+\textbf{Matrices}, rectangular arrays of numbers, symbols, or expressions meticulously organized in rows and columns, assume a pivotal position in linear algebra. They offer a concise and structured representation of vectors, linear transformations, and systems of linear equations. Matrices, amenable to various operations such as addition, multiplication, and transposition, open pathways to tackling a broad spectrum of mathematical challenges
+
+\subparagraph{Matrices Sum}
+The sum of two matrices $A$ and $B$ of the same dimension is defined as the matrix $C$ whose entries are the sum of the corresponding entries of $A$ and $B$. In other words, if $A = [a_{ij}]$ and $B = [b_{ij}]$, then $C = [c_{ij}]$ where $c_{ij} = a_{ij} + b_{ij}$.
+
+\subparagraph{Matrices Product}
+The product of a matrix $A$ with dimensions $(m \times n)$ and a matrix $B$ with dimensions $(n \times p)$ is defined as a matrix $C$ with dimensions $(m \times p)$. The entry $c_{ij}$ of $C$ is defined as the sum of the products of the entries in row $i$ of $A$ and the corresponding entries in column $j$ of $B$. In other words, $c_{ij} = \sum_{k=1}^n a_{ik} b_{kj}$
+$$
+A = \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix} \\
+B = \begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix} \\
+C = A \times B \\
+= \begin{bmatrix}
+1 \cdot 5 + 2 \cdot 7 & 1 \cdot 6 + 2 \cdot 8 \\
+3 \cdot 5 + 4 \cdot 7 & 3 \cdot 6 + 4 \cdot 8
+\end{bmatrix} \\
+= \begin{bmatrix}
+19 & 22 \\
+41 & 50
+\end{bmatrix}
+$$
+
+\subparagraph{$\mathbb{Z}_2$ Field and $\mathbb{Z}_2^n$ Vector Space}
+In both cases, we refer to the set $\mathbb{Z}_2$, representing the set of integers $mod 2$, euqals to $\{0, 1\}$. In the case of fields, this set combines two operations that remain closed concerning the field set. Regarding the vector space $\mathbb{Z}_2^n$, its made by vectors of size $n$, where each element belongs to $\mathbb{Z}_2$, where addition and scalar multiplication are defined operations, also closed within the set. Furthermore, there is certainty about the validity of certain properties such as associativity and distributivity.
+
+In summary, a field constitutes a structure with specified arithmetic properties, while a vector space denotes a collection of objects (vectors) adhering to specific regulations (dictated by vector addition and scalar multiplication), and these vectors can be formed over a field. Fields furnish the scalars necessary in defining vector spaces.
+
+\subsection{Coding Theory}
+The term coding theory refers to the analysis of code properties and its numerous applications. In the realm of communications and information processing, the concept of a code pertains to a set of rules designed to transform data, such as text, numbers, images, etc., into other forms that are more suitable for storage, transmission, or encryption. %These studies have led to the identification of various fields of application, including data compression and serialization. In the context of our treatise, we will highlight two fundamental concepts to grasp the logic and purpose of the cryptosystem: error control (or channel coding) and data encryption.
+\subparagraph{Code}
+The code it can seen as a function that given a word $x$ encode that word over a chosen alphabet as $C: X \rightarrow \sum ^*$, where $C(x)$ is the code associated whith $x$. Proprietis of code:
+\begin{enumerate}
+ \item injective $\rightarrow$ non-singular(the length is arbitrary)
+ \item non-singular $\rightarrow$ uniquely decodable
+\end{enumerate}
+
+\subparagraph{Hamming Distance}
+The Hamming distance is a measure used to quantify the dissimilarity between two strings of equal length in information theory, coding theory, and computer science. It calculates the minimum number of substitutions required to change one string into another by altering individual elements.
+
+For instance, consider two strings: $101010$ and $111011$. Their Hamming distance is 2 because, to convert the first string into the second, two substitutions are needed: changing the second and fifth elements from $0$ to $1$.
+
+\subparagraph{Channel Coding}
+The detection and correction of errors in a code ensure the integrity of data information, whether transmitted over noise-exposed channels or for simple storage purposes. The principle is straightforward: redundancy, the addition of seemingly unnecessary information, is essential for anyone wishing to verify data accuracy or recover lost or corrupted information fragments. Various algorithms have been implemented over time, ranging from the most obvious and simple to the most effective and complex, including:\begin{itemize}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \item Repetition Code: a coding scheme that repeats blocks of bits n times, determining the correct value between 0 and 1 depending on which repeats more than $n/2$ times.                                                                                                                                                                                                                                                  \item Error-correcting Code: this represents more of an error detection family. A code with a minimum Hamming distance can identify up to $d - 1$ errors in a code word (e.g. \textit{d} = 2 $\rightarrow$ Parity bit, \textit{d} = 4 $\rightarrow$ Extended Hamming).                                                                                                                                                                                                                        \end{itemize}
+
+\subparagraph{Generator and Check Matrices}
+In the context where the code $C$ represents a linear subspace of $\mathbb{F}_q^n$, it can be expressed as a linear combination of its codewords, which form a basis typically organized into rows within a generating matrix $G$. This matrix serves as a representation of the code itself, simplifying the transformation of data vectors into code words through straightforward matrix multiplication. Subsequently, a check matrix (or parity check matrix) is constructed, characterized by its kernel \footnote{Which is typically the pre-image of 0. An important special case is the kernel of a linear map. The kernel of a matrix, also known as the null space, refers to the kernel of the linear map defined by the matrix.} being $C$. The code that $H$ can generate is termed the dual code of $C$. When the $G$ matrix takes the form $[\mathbb{I}_k | P]$, it is considered to be in standard form, and consequently, the $H$ matrix appears as $[-P^T | \mathbb{I}_{n-k}]$.
+
+\subparagraph{Cryptographic Coding}
+Cryptographic coding is a field dedicated to securing data integrity, confidentiality, and authentication. Encryption, a key component, converts readable data into secure, unreadable ciphertext, ensuring confidentiality. Decryption, its counterpart, allows authorized users with the correct key to access and transform ciphertext back into its original form for use.
+
+Public-key cryptography, also known as asymmetric cryptography, stands out for its use of key pairs - a public key for encryption and a private key for decryption. This innovation simplifies secure communication by allowing individuals to openly share their public keys while keeping their private keys confidential. This concept plays a pivotal role in protecting digital systems in today's interconnected world.
