@@ -1,0 +1,116 @@
+\begin{algorithm}[H]
+\SetStartEndCondition{ }{}{}%
+\SetKw{KwTo}{in}\SetKwFor{For}{for}{\string:}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+\SetKwFor{While}{while}{:}{fintq}%
+\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+\caption{Seed Initialization}
+\label{SI}
+\For{\(i\) $\leftarrow$ 0 \KwTo 3}{
+    $seed \leftarrow$ char[X\_BYTES]\;
+    \texttt{randombytes(seed, X\_BYTES)}\;
+    \For{\(j\) $\leftarrow$ 0 \KwTo X\_BYTES-1}{
+        $s[i] = s[i] \ll 8$\;
+        \(s[i]\) $|=$ \(seed[j]\)\;
+    }
+}
+\end{algorithm}
+
+
+
+
+
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\caption{Matrix E\label{GE}}
+\KwResult{matrix $E$ with T 1s in each row}
+\tcc{Initialization of the seed}
+\texttt{init\_seed()}\;
+\tcc{Filling the matrix}
+$M \leftarrow$ uint64\_t [ROWS][COLUMNS]\;
+\For{\(i\) $\leftarrow$ 0 \KwTo ROW-1}{
+    row$\leftarrow$ \texttt{gen\_array()}\;
+    $M[i] \leftarrow$ row;
+}
+\Return{\texttt{matrix}}\;
+\end{algorithm}
+
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\caption{Transpose bit matrix \label{TM}}
+\KwData{Matrix M}
+\KwResult{M transposed}
+$T \leftarrow$ uint64\_t[$M$.COLUMNS * 64][$M$.ROWS / 64] filled with 0s\;
+\For{$i \leftarrow 0$ \KwTo $M$.ROWS-1}{
+    \For{$j \leftarrow 0$ \KwTo $M$.COLUMNS-1}{
+        \For{$k \leftarrow 0$ \KwTo 63}{
+            bit $\leftarrow$ \(M[i][j] \gg k\) $\&$ 1\;
+            $M$[j * 64 - (63 - k)][i] $|=$ bit $\ll$ 63 - k\;
+        }
+    }
+}
+\Return{\texttt{M}}\;
+\end{algorithm}
+
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\caption{Bit-wise AND + XOR \label{BAX}}
+\KwData{Vectors $A$, $V$}
+\KwResult{The bit-wise AND followed by a XOR}
+$result\_and \leftarrow$ uint64\_t[$n$]\;
+\For{$i \leftarrow 0$ \KwTo $n-1$}{
+    $result\_and[i] \leftarrow A[i] \& V[i]$\;
+}
+$result\_xor \leftarrow 0$\;
+\For{$i \leftarrow 0$ \KwTo $n-1$}{
+    $result\_xor \leftarrow result\_xor \oplus result\_and[i]$\;
+}
+$result \leftarrow$ 0\;
+\For{$i \leftarrow 0$ \KwTo $63$}{
+    $bit \leftarrow$ ($result\_xor \gg i$) \& 1\;
+    $result \leftarrow result \oplus bit$\;
+}
+\Return{\texttt{result}}\;
+\end{algorithm}
+
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\caption{Sum of matrix \label{SM}}
+\KwData{Matrix $M$, $N$}
+\KwResult{Sum of $M$ and $N$}
+\For{$i \leftarrow 0$ \KwTo ROWS-1}{
+    \For{$j \leftarrow 0$ \KwTo COLUMNS-1}{
+        $M$[i][j] $|= N$[i][j]\;
+    }
+}
+\Return{\texttt{M}}
+\end{algorithm}
+
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\caption{Compute Y \label{CY}} 
+\KwData{matrix $A$, $S$, $E$}
+\KwResult{matrix $Y$}
+$T$ $\leftarrow$ \texttt{transposed($A$)} $^{\ref{TM}}$\;
+$Y \leftarrow$ uint64\_t[ROWS][COLUMNS]\;
+\tcc{Compute $S*A$}
+\For{$i \leftarrow 0 $ \KwTo $S$.ROWS-1}{
+    \For{\(j \leftarrow 0\) \KwTo $T$.ROWS-1}{
+        $bit \leftarrow$ \texttt{bax($S$[i], $T$[j])}$^{\ref{BAX}}$\;
+        $Y$[i][j / size of(uint64\_t)] $|= bit \ll (j \pmod{\text{size of uint64\_t}}$)\;
+    }
+}
+\tcc{Compute $Y+E$}
+$Y \leftarrow$ \texttt{matrix\_sum($Y$, $E$)$^{\ref{SM}}$}\;
+\Return{\texttt{Y}}
+\end{algorithm}

@@ -1,0 +1,138 @@
+\chapter{Alekhnovich's Cryptosystem}
+\section{Overview}
+This paper does not delve into the intricate details of the Alekhnovich algorithm or its potential advantages against quantum computers compared to existing algorithms. However, to provide context for further discussion, a brief overview of its operation is included.
+\subsection{The Algorithm} The algorithm begins by generating two random matrices, $A\in \mathbb{Z}^{k\times n}_2$ and $S\in \mathbb{Z}^{l\times k}_2$. After, it generates a third random matrix, $E\in \mathbb{Z}^{l\times n}_2$. The rows of E are chosen from random and independent vectors of weight $t$ (the weight is computed as $\sqrt{n}$).The algorithm then defines the matrix $Y$ as $Y = SA + E$.
+
+
+The matrices $Y$ and $A$ represent the public key of the algorithm. The public key is shared with anyone who wants to send encrypted messages to the sender.
+The plain text to encrypt space is $m = \mathbf{C} \subset \{0,1\}^l $ where $\mathbf{C}$ is an error-correcting code. The error-correcting code implies an algorithm used to ensure that the message can be recovered even if it is corrupted by noise.
+Now following steps are required for a secure exchange of information:
+\begin{itemize}
+ \item To encrypt the message, the sender performs the following steps:
+    \begin{enumerate}
+     \item The sender generates a random $t$-weight vector $e$ of $\mathbf{F}_2^n $.
+     \item The sender multiplies $e^T$ by the public key $Y$ and $A$.
+     \item The sender adds the message $m$ to the result of the multiplication $Ye^T$.
+    \end{enumerate}
+    The encrypted message is then given by the following vector: $$C(m) = (Ae^T, m+Ye^T)$$.
+    \item To decrypt the message, the receiver performs the following steps:
+    \begin{enumerate}
+     \item The receiver multiplies the first part of the encrypted message, $Ae^T$, by the secret key $S$ getting $SAe^T = Ye^T-Ee^T $.
+     \item The receiver subtracts from the second part of the encrypted message, $m+Ye^T$, the result of the previous multiplication.
+    \end{enumerate}
+    Now the receiver finds itself with a vector of the type: $$(m+Ye^T) - (Ye^T-Ee^T) = m + Ee^T$$
+\end{itemize}
+The algorithm works by exploiting the fact that the product of the matrix $E$ and the vector $e$ of weight $t$ is likely to be zero. This is due to the random positions of the few 1s in both both the rows of $E$ and the vector $e$; the probability that even just one of these coincides is very low.
+In the worst case, the code will distance itself from the original with a maximum Hamming distance of $t$, which is manageable with the error-correcting algorithm of the chosen code.
+
+\subsection{Parameters}
+The algorithm's implementation requires defining several parameters, including matrix dimensions and message length. To ensure the cryptosystem's reliability, we must impose a condition on the matrix dimensions: $$k + l < Rn$$ where $R$ is a constant less than 1. Once the message length ($l$ bits) is chosen, this rule guides the selection of suitable values for $k$ and $n$.
+
+An important implementation factor is the practical limitation of allocating matrices with single-bit cells. A common solution is to select matrix dimensions that are divisible by the size of standard integers in the chosen programming language (e.g., \textit{uint64\_t} in C). 
+
+Additionally, remember:
+\begin{itemize}
+    \item The weight of the vector $t$ is $$t = \sqrt{l}$$
+    \item The transmission channel's error probability is $$p = \frac{t^2}{n}$$
+\end{itemize}
+
+\textit{For our implementation, we'll use the following parameters value: $l = 1300$ bits, $t = 144$ bits, $k = 2^{6}$ bits, $n = 2^{17}$ bits.}
+
+\section{Key Generation}
+
+To facilitate secure message exchange, we must generate public and private keys. For efficient resource usage, we'll represent matrices with integers, treating individual bits as matrix cells. We'll employ the following libraries for robust randomness:
+\begin{itemize}
+    \item \textbf{librandombytes:} generates cryptography secure random seeds (\texttt{randombytes(x, X\_BYTES)} API, see \href{https://randombytes.cr.yp.to/index.html}{here}).
+    \item \textbf{xoshiro256 PRNG:} efficiently generates pseudo-random bits (look \href{https://prng.di.unimi.it}{here} for the documentation).
+\end{itemize}
+
+\subsection{Matrix A}
+
+Following the referenced work, matrix $A$ has dimensions $k \times n$ and contains random values. We'll delegate random value generation to trusted functions. To create $A$ a simple function will be used which, after initializing the seed, will generate as many random numbers as necessary:
+$$
+A \leftarrow \texttt{gen\_matrix(a.rows, a.columns)}
+$$ 
+\textbf{Note:} If $n$ represents the total number of bits, we can reduce $A$'s size:
+$a.columns \leftarrow \frac{n}{s}$, where $s$ is the \textit{size-of} the integer type chosen for our matrix.
+
+\begin{algorithm}
+\caption{\texttt{gen\_matrix}}
+\label{GRM}
+
+\DontPrintSemicolon
+\SetStartEndCondition{ }{}{}
+\SetKwFunction{Range}{range}
+\SetKw{KwTo}{in}
+\SetKwFor{For}{for}{\string:}{}
+\newcommand{\forrow}{$i$ \KwTo\Range{$rows$}}
+\newcommand{\forcol}{$j$ \KwTo\Range{$columns$}}
+\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine
+
+\KwIn{rows, columns $\in \mathbb{N}$}
+\KwOut{random matrix $\in \mathbb{N}^{r\times c}$}
+\texttt{init\_seed()}\tcc*{Initializing the seed}
+$M \leftarrow$ matrix\;
+\For{\forrow}{
+    \For{\forcol}{
+        $m_{ij} \leftarrow$ \texttt{xoshiro256.next()}\tcc*{Filling the matrix}
+    }
+}
+\Return{\texttt{M}}\;
+\end{algorithm}
+
+\subsection{Matrix S}
+We follow the exact same procedure for matrix $S$, simply changing the input variables to our function:
+$$
+S\leftarrow\texttt{gen\_matrix(s.rows, s.columns})
+$$
+As before, we reduce the column size to the ratio of the number of bits needed to the size of the instantiated matrix type.
+
+
+\subsection{Matrix E}
+This matrix has different requirements than the previous ones: a predetermined number of 1-bits (defined as weight $t$) must be randomly positioned within each row. To achieve this, we initialize each row as a vector of zeros. We then employ a loop to identify valid positions for inserting the 1-bits, ensuring randomness in their placement. This process is repeated for all rows of the matrix.
+$$
+E \leftarrow \texttt{gen\_weighted\_matrix(e.rows, e.columns, t)}
+$$
+Since we are addressing random positions within individual bits of an integer vector, it is pertinent to emphasize the processing of these integers that will form rows of the matrix.
+
+\begin{algorithm}[H]
+\caption{\texttt{weighted\_array}}
+\label{WA}
+
+\DontPrintSemicolon
+\SetStartEndCondition{ }{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+\SetKwFunction{Range}{range}
+\SetKw{KwTo}{in}
+\SetKwFor{For}{for}{\string:}{}
+\newcommand{\for}{$count$ \KwTo\Range{$t$}}
+\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine
+
+\KwIn{l, t $\in \mathbb{N}$}
+\KwOut{random weighted vector $\in \mathbb{N}^{l}$}
+$\mathbf{a} \leftarrow$ vector\;
+\For{\for}{
+    \Repeat{no 1 has been inserted at that position yet}{
+        $p \leftarrow$ \texttt{xoshiro256.next()}\;
+        $i \leftarrow \text{p divided the size of the array's type}$\;
+        $s \leftarrow \text{p module the size of the array's type}$\;
+    }
+    $a_i \leftarrow$ \textit{OR} with a 1 shifted by \(s\) bits\tcc*{Set the bit at calculated position}
+}
+\Return{\texttt{array}}
+\end{algorithm}
+
+
+\subsection{Matrix Y}
+The matrix \(Y\), along with the precomputed \(A\) matrix, forms the public key essential for encrypting messages. The key computation involves:
+\begin{enumerate}
+    \item Transposing \(A\) to simulate a row-column product.
+    \item Performing a bitwise AND operation between transposed \(A\) and \(S\).
+    \item Executing a bitwise XOR operation on the resulting matrix.
+    \item Reducing the result to a single bit through XOR operations.
+    \item Storing the single bit in the appropriate position within \(Y\).
+\end{enumerate}
+
+\section{Encryption}
+\section{Decryption}
+\section{Error Code}

@@ -64,11 +64,18 @@ Now that we have the function to generate matrices \(A\) and \(S\), we need to g
 \caption{Generate array with \(T\) 1s}
 \label{GA}
 \KwResult{array of uint64\_t with T 1s}
+\SetKwProg{Fn}{Function}{:}{}
+\SetKwFunction{fetchBit}{fetchBit}\label{FB}
+\Fn{\fetchBit{integer, shift}}{
+    $bit \leftarrow (integer \gg shift) \& 1$\;
+    \Return{\texttt{bit}}
+}
 $array \leftarrow$ uint64\_t [DIM]\;
 \For{$t \leftarrow 1$ \KwTo $T$}{
-    \Repeat{$[array[p / size of(uint64\_t)] \gg (p \pmod{uint64\_t})] \& 1 = 1$}{
-    \tcc{$K = DIM * 64$}
-        $p \leftarrow$ \texttt{xoshiro256.next()} $\pmod{K}$\;
+    \Repeat{\texttt{fetch\_bit}(array[index], shift) = 1}{
+        $p \leftarrow$ \texttt{xoshiro256.next()}\;
+        $index \leftarrow p \pmod{\text{array}}$\;
+        $shift \leftarrow p \pmod{\text{uint64\_t}}$\;
     }
     array[p / size of(uint64\_t)] $|=$ (1 $\ll$ (p $\pmod{\text{uint64\_t}}$)\;
 }
@@ -114,7 +121,7 @@ $T \leftarrow$ uint64\_t[$M$.COLUMNS * 64][$M$.ROWS / 64] filled with 0s\;
 \caption{Bit-wise AND + XOR \label{BAX}}
 \KwData{Vectors $A$, $V$}
 \KwResult{The bit-wise AND followed by a XOR}
-$result\_and \leftarrow$ array of size $n$\;
+$result\_and \leftarrow$ uint64\_t[$n$]\;
 \For{$i \leftarrow 0$ \KwTo $n-1$}{
     $result\_and[i] \leftarrow A[i] \& V[i]$\;
 }
@@ -150,21 +157,32 @@ $result \leftarrow$ 0\;
 \KwResult{matrix $Y$}
 $T$ $\leftarrow$ \texttt{transposed($A$)} $^{\ref{TM}}$\;
 $Y \leftarrow$ uint64\_t[ROWS][COLUMNS]\;
-\tcp*{Compute $S*A$}
-\For{\(i\) $\leftarrow$ 0 \KwTo $S$.ROWS-1}{
+\tcc{Compute $S*A$}
+\For{$i \leftarrow 0 $ \KwTo $S$.ROWS-1}{
     \For{\(j \leftarrow 0\) \KwTo $T$.ROWS-1}{
         $bit \leftarrow$ \texttt{bax($S$[i], $T$[j])}$^{\ref{BAX}}$\;
         $Y$[i][j / size of(uint64\_t)] $|= bit \ll (j \pmod{\text{size of uint64\_t}}$)\;
     }
 }
-\tcp*{Compute $Y+E$}
+\tcc{Compute $Y+E$}
 $Y \leftarrow$ \texttt{matrix\_sum($Y$, $E$)$^{\ref{SM}}$}\;
 \Return{\texttt{Y}}
 \end{algorithm}
 
 \subsection{Encryption}
 After made public the $Y$ and $A$ keys, now it's possible to encrypt the messages. The sender other than write down the message to send, needs to generate a random vector long $l$ and of weight $t$.
-To generate this vector it can be used the same piece of code used to generate the single row of matrix E $^{\ref{GA}}$.
+To generate this vector it can be used the same piece of code used to generate the single row of matrix E \texttt{gen\_array()}$^{\ref{GA}}$. Now it time to computes the encrypted message concatenating two parts:
+\begin{algorithm}
+\DontPrintSemicolon
+\caption{First half message}\label{FH}
+\KwData{Matrix A, vector V}
+\KwResult{Product between A and V}
+$array \leftarrow$ uint64\_t[ROWS]\;
+\For{$i \leftarrow 0$ \KwTo ROWS-1}{
+    
+}
+\Return{\texttt{array}}
+\end{algorithm}
 
 \subsection{Decryption}
 \subsection{Error Code}
