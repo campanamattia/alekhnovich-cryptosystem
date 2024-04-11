@@ -1,0 +1,13 @@
+\section{Decryption}
+Upon receiving an encrypted message, it is necessary to separate the nonce from the message and utilize the first part of the message to compute the key required for decrypting this individual message. Once we have obtained the first part of the message, we multiply it by our private key $S$ to obtain a result as follows:
+$$
+\mathbf{key}=SAe^T\leftarrow \texttt{row\_column(S, nnc)}
+$$
+And from that we can use the \(\mathbf{k}\) vector as: $Y\mathbf{e}^T=\mathbf{k} + E\mathbf{e}^T\rightarrow \mathbf{k} = Y\mathbf{e}^T - E\mathbf{e}^T$
+
+At this point, all that remains is to subtract the vector $\mathbf{k}$ obtained above from our $\mathbf{code}$ to achieve a result of the form:
+$$
+\mathbf{m}\sim \mathbf{dec}\leftarrow \mathbf{enc} - \mathbf{k}
+$$
+
+Although it would be desirable to claim that by doing so we obtain our decrypted message, we still need to address the issue by $E\mathbf{e}^T$, which we tackle in the subsequent section dedicated to error correction in codes.

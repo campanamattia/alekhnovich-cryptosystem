@@ -1,0 +1,15 @@
+\section{Encryption}
+
+Following the generation of cryptographic keys, they are utilized for encryption and decryption purposes. In the transmission of encrypted messages, apart from selecting an appropriate element from our cryptographic system, denoted as $m = \mathbf{C} \subset \{0,1\}^l $, it is imperative to generate a random weighted vector, maintaining the previous weight $t$. This can be achieved through the function introduced earlier:
+$$
+\mathbf{e}\leftarrow\texttt{weighted\_array(l, t)}
+$$
+
+For the encryption procedure itself, we can rely on the previously introduced functions. A call to two functions is sufficient:
+\begin{enumerate}
+    \item $\mathbf{nnc} \leftarrow\texttt{compute\_nonce(A, e)}$, computing the row-by-column product (with a "matrix" consisting of a single column)
+    \item $\mathbf{enc} \leftarrow\texttt{cipher(Y, e, m)}$, which, in addition to performing the row-by-column product like the one above, also adds our message $m$ to the result
+\end{enumerate}
+$$
+\mathbf{message} \leftarrow(\texttt{nnc, enc})
+$$
