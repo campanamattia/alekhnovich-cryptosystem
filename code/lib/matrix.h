@@ -100,12 +100,50 @@ uint64_t **transpose(uint64_t **matrix, int rows, int cols){
     return transposed;
 }
 
-uint64_t **matrix_product(uint64_t **A, uint64_t **B, int rows, int cols, int l){
-    uint64_t **product = (uint64_t **) calloc(rows, sizeof(uint64_t *));
-
-    if(product == NULL){
+uint64_t **matrix_product(uint64_t **A, uint64_t **B, int a_rows, int a_cols, int b_rows, int b_cols){
+    if(a_cols != b_rows)
         return NULL;
+
+    uint64_t **bt = transpose(B, b_rows, b_cols);
+
+    if(bt == NULL)
+        return NULL;
+
+    uint64_t **product = (uint64_t **) calloc(a_rows, sizeof(uint64_t *));
+
+    if(product == NULL)
+        return NULL;
+
+    for(int i = 0; i < a_rows; i++){
+        for(int j = 0;  j < b_cols; j++){
+            int bit = bax(A[i], bt[j], a_cols);
+            product[i][j / size_64] |= bit << (j % size_64);
+        }
     }
 
     return product;
+}
+
+/*Returns the sum of two matrices bit-wise
+*/
+uint64_t **matrix_sum(uint64_t **A, uint64_t **B, int rows, int cols){
+    uint64_t **sum = (uint64_t **) calloc(rows, sizeof(uint64_t *));
+
+    if(sum == NULL){
+        return NULL;
+    }
+
+    for(int i = 0; i < rows; i++){
+        sum[i] = (uint64_t *) calloc(cols, sizeof(uint64_t));
+
+        if(sum[i] == NULL){
+            return NULL;
+        }
+
+        for(int j = 0; j < cols; j++){
+            sum[i][j] = A[i][j] ^ B[i][j];
+        }
+    }
+
+    return sum;
 }

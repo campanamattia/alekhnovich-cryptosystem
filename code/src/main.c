@@ -30,10 +30,12 @@ struct key{
 //for function prototypes
 enum flag get_command(char *);
 char *concat(const char *, const char *);
+void write_key(FILE *, struct key *);
+struct key *read_key(FILE *);
 
 void generate_keys(char *);
-void encrypt_message(char *, char *);
-void decrypt_message(char *, char *);
+void encrypt_message(char *, char *, char *);
+void decrypt_message(char *, char *, char *);
 void correct_message(char *, char *, char *);
 
 uint64_t **compute_public(struct key *, struct key *, struct key *);
@@ -51,10 +53,10 @@ int main(int argc, char *argv[]) {
             generate_keys(argv[2]);
             break;
         case ENCRYPT:
-            encrypt_message(argv[2], argv[3]);
+            encrypt_message(argv[2], argv[3], argv[4]);
             break;
         case DECRYPT:
-            decrypt_message(argv[2], argv[3]);
+            decrypt_message(argv[2], argv[3], argv[4]);
             break;
         case CORRECT:
             correct_message(argv[2], argv[3], argv[4]);
@@ -94,6 +96,36 @@ char *concat(const char *s1, const char *s2){
     strcat(result, s2);
 
     return result;
+}
+
+void write_key(FILE *file, struct key *key){
+    fwrite(key->rows, sizeof(int), 1, file);
+    fwrite(key->cols, sizeof(int), 1, file);
+    fwrite(key->data, sizeof(uint64_t), key->rows * key->cols, file);
+    fflush(stdout);
+}
+
+struct key *read_key(FILE *file){
+    struct key *key = calloc(1, sizeof(struct key));
+
+    if(key == NULL){
+        printf("Error allocating memory\n");
+        return NULL;
+    }
+
+    fread(key->rows, sizeof(int), 1, file);
+    fread(key->cols, sizeof(int), 1, file);
+
+    key->data = (uint64_t **) calloc(key->rows, sizeof(uint64_t *));
+
+    if(key->data == NULL){
+        printf("Error allocating memory\n");
+        return NULL;
+    }
+
+    fwrite(key->data, sizeof(uint64_t), key->rows * key->cols, file);
+
+    return key;
 }
 
 void generate_keys(char *output){
@@ -151,29 +183,27 @@ void generate_keys(char *output){
     if(Y->data == NULL)
         return;
 
-
-    fwrite(Y->rows, sizeof(int), 1, public);
-    fwrite(Y->cols, sizeof(int), 1, public);
-    fwrite(Y->data, sizeof(uint64_t), Y->rows * Y->cols, public);
-
-    fflush(stdout);
-
-    fwrite(A->rows, sizeof(int), 1, public);
-    fwrite(A->cols, sizeof(int), 1, public);
-    fwrite(A->data, sizeof(uint64_t), A->rows * A->cols, public);
-
-    fflush(stdout);
-
-    fwrite(S->rows, sizeof(int), 1, private);
-    fwrite(S->cols, sizeof(int), 1, private);
-    fwrite(S->data, sizeof(uint64_t), S->rows * S->cols, private);
+    write_key(public, Y);
+    write_key(public, A);
+    write_key(private, S);
 
     fclose(private);
     fclose(public);
 }
 
 uint64_t **compute_public(struct key *S, struct key *A, struct key *E){
-    uint64_t **Y = calloc(S->rows, sizeof(uint64_t *));
-    
+    uint64_t **Y = matrix_product(S->data, A->data, S->rows, S->cols, A->rows, A->cols);
+
+    if(Y == NULL){
+        printf("Error computing public key\n");
+        return NULL;
+    }
+
+    Y = matrix_sum(Y, E->data, E->rows, E->cols);
+
     return Y;
+}
+
+void encrypt_message(char *file, char *key, char *output){
+
 }

@@ -6,6 +6,12 @@ int fetch_bit(uint64_t elem, int k){
     return (elem >> k) & 1;
 }
 
+/*Shift the bit to the k-th position
+*/
+uint64_t shift_bit(int bit, int k){
+    return (uint64_t) bit << k;
+}
+
 /*Returns the number of 1s in elem
 */
 int count_ones(uint64_t elem){
