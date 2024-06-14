@@ -1,4 +1,4 @@
-//#include <randombytes.h>
+#include <randombytes.h>
 
 #include "xoshiro.h"
 #define SEED 8
@@ -20,7 +20,7 @@ void init_seed(){
 
     for(int i = 0; i < 4; i++){
         unsigned char seed[SEED];
-        //randombytes(seed, SEED);
+        randombytes(seed, SEED);
 
         for(int j = 0; j < SEED; j++){
             s[i] = (s[i] << 8) | seed[j];

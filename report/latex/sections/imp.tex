@@ -4,15 +4,26 @@
 This paper does not delve into the intricate details of the Alekhnovich algorithm or its potential advantages against quantum computers compared to existing algorithms. However, to provide context for further discussion, a brief overview of its operation is included.
 
 \subsection{The Algorithm} The algorithm begins by generating two random matrices, $A\in \mathbb{Z}^{k\times n}_2$ and $S\in \mathbb{Z}^{l\times k}_2$. After, it generates a third random matrix, $E\in \mathbb{Z}^{l\times n}_2$. The rows of E are chosen from random and independent vectors of weight $t$ (the weight is computed as $\sqrt{n}$).The algorithm then defines the matrix $Y$ as $Y = SA + E$.
+\comm{qui manca la semantica delle matrici, come vanno intese, cosa è implicitamente
+una generatrice o una parity check matrix di un codice}
 
+The matrices $Y$ and $A$ \comm{mancano le dimensioni} represent the public key of the algorithm. The public key is shared with anyone who wants to send encrypted messages to the sender.
+The plain text to encrypt space is $m = \mathbf{C} \subset \{0,1\}^l $ 
+where $\mathbf{C}$ is an error-correcting code. The error-correcting code 
+implies an algorithm used to ensure that the message can be recovered even if 
+it is corrupted by noise.\comm{qui vale la pena di definire meglio il codice
+a partire dalle sue caratteristiche, lunghezza, dimensione e distanza minima}
 
-The matrices $Y$ and $A$ represent the public key of the algorithm. The public key is shared with anyone who wants to send encrypted messages to the sender.
-The plain text to encrypt space is $m = \mathbf{C} \subset \{0,1\}^l $ where $\mathbf{C}$ is an error-correcting code. The error-correcting code implies an algorithm used to ensure that the message can be recovered even if it is corrupted by noise.
 Now following steps are required for a secure exchange of information:
 \begin{itemize}
- \item To encrypt the message, the sender performs the following steps:
+ \item To encrypt the message, \comm{definisci una funzione di cifratura
+ $\text{\sc Encrypt}(m,\mathtt{pk})$ dove, in precedenza hai definito cos'è 
+ il messaggio e cosa costituisce la chiave pubblica} the sender performs the following steps:
     \begin{enumerate}
-     \item The sender generates a random $t$-weight vector $e$ of $\mathbf{F}_2^n $.
+     \item The sender generates a random $t$-weight vector $e$ of $\mathbf{F}_2^n$ 
+     \comm{mantieni una scelta uniforme su come indichi il campo finito di due elementi, o 
+     $\mathbb{F}_2$ (non $\mathbf{F}_2$), o $\mathbb{Z}_2$, sia da solo che quando
+     usato per costruire vettori}.
      \item The sender multiplies $e^T$ by the public key $Y$ and $A$.
      \item The sender adds the message $m$ to the result of the multiplication $Ye^T$.
     \end{enumerate}
@@ -24,28 +35,45 @@ Now following steps are required for a secure exchange of information:
     \end{enumerate}
     Now the receiver finds itself with a vector of the type: $$(m+Ye^T) - (Ye^T-Ee^T) = m + Ee^T$$
 \end{itemize}
-The algorithm works by exploiting the fact that the product of the matrix $E$ and the vector $e$ of weight $t$ is likely to be zero. This is due to the random positions of the few 1s in both the rows of $E$ and the vector $e$; the probability that even just one of these coincides is very low.
+The algorithm works by exploiting the fact that the product of the matrix $E$ and the vector $e$ of weight $t$ is likely to be zero. This is due to the random positions of the few $1$s 
+in both the rows of $E$ and the vector $e$; the probability that even just one of these coincides is very low \comm{quantificare}.
 In the worst case, the code will distance itself from the original with a maximum Hamming distance of $t$, which is manageable with the error-correcting algorithm of the chosen code.
 
 \subsection{Parameters}
-The algorithm's implementation requires defining several parameters, including matrix dimensions and message length. To ensure the cryptosystem's reliability, we must impose a condition on the matrix dimensions: $$k + l < Rn$$ where $R$ is a constant less than 1. Once the message length ($l$ bits) is chosen, this rule guides the selection of suitable values for $k$ and $n$.
+The algorithm's implementation requires defining several parameters, including matrix dimensions and message length. To ensure the cryptosystem's reliability, we must impose a condition on the matrix dimensions: $$k + l < Rn$$ where $R$ is a constant less than 1\comm{giustificare perchè}. Once the message length ($l$ bits) is chosen, this rule guides the selection of suitable values for $k$ and $n$.
 
-An important implementation factor is the practical limitation of allocating matrices with single-bit cells. A common solution is to select matrix dimensions that are divisible by the size of standard integers in the chosen programming language (e.g., \textit{uint64\_t} in C). 
-
+An important implementation factor is the practical limitation of allocating matrices with 
+single-bit cells. A common solution is to select matrix dimensions that are divisible by the 
+size of standard integers \comm{in realtà, lo standard C denota gli interi \texttt{int}
+come ``di almeno 32 bit''. la scelta che si fa solitamente è mirata ad avere un multiplo
+della parola architetturale} in the chosen programming language (e.g., 
+\texttt{uint64\_t} in C). 
+\comm{in realtà, andare a scegliere multipli di 64 pone problemi di sicurezza;
+il punto è solitamente scegliere matrici con dimensioni vicine a un multiplo di 
+64 }
 Additionally, remember:
 \begin{itemize}
     \item The weight of the vector $t$ is $$t = \sqrt{l}$$
-    \item The transmission channel's error probability is $$p = \frac{t^2}{n}$$
+    \item The transmission channel's \comm{manca il riferimento a quale
+    transmission channel} error probability is $$p = \frac{t^2}{n}$$
 \end{itemize}
 
-\textit{For our implementation, we'll use the following parameters value: $l = 1300$ bits, $t = 144$ bits, $k = 2^{6}$ bits, $n = 2^{17}$ bits.}
-
+\textit{For our implementation, we'll use the following parameters value: 
+$l = 1300$ bits, $t = 144$ bits, $k = 2^{6}$ bits, $n = 2^{17}$ bits.}
+\comm{un ulteriore vincolo è legato al fatto che, per il codice casuale, la
+cui decodifica costituisce il problema computazionalmente difficile, il
+peso dell'errore sia alto.}
 %\input{sec_imp/key_gen}
 \section{Key Generation}
 
-To facilitate secure message exchange, we must generate public and private keys. For efficient resource usage, we'll represent matrices with integers, treating individual bits as matrix cells. We'll employ the following libraries for robust randomness:
+To facilitate secure message exchange, we must generate public and private keys. 
+For efficient resource usage, we'll represent matrices with integers, 
+treating individual bits as matrix cells. We'll employ the following 
+libraries for robust randomness:
 \begin{itemize}
-    \item \textbf{librandombytes:} generates cryptography secure random seeds (\texttt{randombytes(x, X\_BYTES)} API, see \href{https://randombytes.cr.yp.to/index.html}{\underline{here}}).
+    \item \textbf{librandombytes:} generates cryptography secure random seeds (\texttt{randombytes(x, X\_BYTES)} API, see \comm{non mettere riferimenti in questo
+    modo nel testo, aggiungi riferimenti bibliografici}
+    \href{https://randombytes.cr.yp.to/index.html}{\underline{here}}).
     \item \textbf{xoshiro256 PRNG:} efficiently generates pseudo-random bits (look \href{https://prng.di.unimi.it}{\underline{here}} for the documentation).
 \end{itemize}
 
@@ -68,7 +96,7 @@ To facilitate secure message exchange, we must generate public and private keys.
     \texttt{randombytes(seed, 8)}\;
     \For{\forj}{
         $s_i \leftarrow s_i \ll 8$ \;
-        $s_i |= seed_j$\;
+        $s_i |= seed_j$\tcp*{\comm{non mischiare notazione C e pseudocodice}}
     }
 }
 \end{algorithm}

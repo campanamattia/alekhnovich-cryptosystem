@@ -117,7 +117,7 @@ uint64_t **matrix_product(uint64_t **A, uint64_t **B, int a_rows, int a_cols, in
     for(int i = 0; i < a_rows; i++){
         for(int j = 0;  j < b_cols; j++){
             int bit = bax(A[i], bt[j], a_cols);
-            product[i][j / size_64] |= bit << (j % size_64);
+            product[i][j / size_64] |= bit << (size_64 - j % size_64);
         }
     }
 
