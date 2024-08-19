@@ -2,21 +2,10 @@
 \section*{Introduction}
 \end{center}
 
-In 2006, Clive Humby coined a slogan that has proven increasingly prescient over time: "Data is the new oil." Nothing could be more true in today's context. Much like any 
-valuable resource, data has become a coveted asset, with individuals and 
-entities vying to acquire and leverage it to their advantage. Consequently, 
-from the outset, the need for secure communications and data protection was 
-paramount.
+In the modern era, data has become an invaluable resource, akin to oil in its capacity to drive economies and influence global dynamics. With the exponential growth of digital data, the need for robust data protection mechanisms has become paramount. This necessity is underscored by the emergence of quantum computers, which pose a significant challenge to traditional cryptographic methods.
 
-Over the years, technological advancements have given rise to new algorithms 
-and protocols designed to maximize data security. Tremendous strides have 
-been made in safeguarding sensitive information, and yet, we find ourselves 
-facing an imminent threat: the advent of quantum computers.
+Quantum computers, leveraging principles of quantum mechanics such as superposition and entanglement, possess the potential to perform computations at speeds far surpassing classical computers. This capability directly threatens current cryptographic systems, particularly those based on the hardness of problems like integer factorization and discrete logarithms, which are vulnerable to quantum algorithms such as Shor's algorithm.
 
-This threat to data security is not a hypothetical scenario; it is a reality 
-on the horizon. Quantum computers, leveraging the principles of quantum 
-mechanics, possess the potential to reshape the digital landscape by solving 
-complex problems at unprecedented speeds. As we increasingly rely on digital 
-communication and data storage for our most critical operations, the need for 
-robust cryptographic defenses against quantum threats has never been more 
-urgent.
+However, the primary challenge in addressing quantum threats lies not in the immediate danger but in the slow and complex transition from quantum-vulnerable cryptographic schemes to quantum-resistant ones. The adoption of post-quantum cryptographic systems must begin well before quantum computers become practically viable, due to the time-consuming nature of cryptographic transitions and the widespread reliance on current systems.
+
+This report delves into Alekhnovich’s cryptosystem, a candidate for post-quantum cryptography, which bases its security on the hardness of decoding random linear codes—an NP-hard problem believed to be resistant to quantum attacks. We will explore the theoretical underpinnings of this cryptosystem, discuss its implementation details, and evaluate its potential to serve as a robust defense in the quantum era.

@@ -1,124 +1,231 @@
 \chapter{Theoretical Fundamentals}
+\theoremstyle{definition}
 
-To address the imminent threat posed by quantum computers, the computer science 
+To address the challenges posed by quantum computers, the computer science 
 community has long been engaged in the quest for alternatives to current symmetric and asymmetric encryption algorithms. Concerning the latter, various proposals have been presented to the public and the community, yet only a few have been recognized as valid and genuinely effective against quantum computers. As for other algorithms, we have thus far been unable to demonstrate either their efficacy or inefficacy in the face of quantum computers. Among these is the Alekhnovich cryptosystem, the focus of our exploration in this treatise.
 
-To delve deeper into this cryptosystem, it is undoubtedly essential to introduce several concepts from the fields of coding theory and geometry and linear algebra. This introduction will enhance the comprehensibility of its implementation, both in terms of logic and procedures.
+To delve deeper into this cryptosystem, it is essential to introduce several concepts from the fields of coding theory, geometry, and linear algebra. This introduction will enhance the comprehensibility of its implementation, both in terms of logic and procedures.
 
 \section{Linear Algebra}
-Linear algebra, a cornerstone of mathematics, delves into the analysis of vector spaces and their transformations. Its significance lies in its wide-ranging applications, encompassing the solution of systems of linear equations and the exploration of multidimensional objects in space. To undertake these analyses, linear algebra employs a diverse toolkit, including vector spaces, linear equations, and matrices.
+Linear algebra, a cornerstone of mathematics, is the study of vector spaces and their transformations. It is fundamental in a wide range of applications, including the solution of systems of linear equations, transformations of multidimensional objects in space, and much more. To undertake these analyses, linear algebra employs various mathematical constructs, including vector spaces, linear equations, and matrices.
 
-Matrices, rectangular arrays of numbers, symbols, or expressions meticulously organized in rows and columns, assume a pivotal position in linear algebra. They offer a concise and structured representation of vectors, linear transformations, and systems of linear equations. Matrices, amenable to various operations such as addition, multiplication, and transposition, open pathways to tackling a broad spectrum of mathematical challenges
-\comm{non usare sottosezioni, usa l'ambiente definition di amsthm per dare definizioni, 
-lasciando gli esempi fuori dalla definizione}
-\subsection{Matrices Sum}
-\comm{definisci prima una matrice con i suoi elementi, la notazione $a_ij$ è flottante}
-The sum of two matrices $A$ and $B$ of the same dimension is defined as the matrix $C$ whose entries are the sum of the corresponding entries of $A$ and $B$. In other words, if $A = [a_{ij}]$ and $B = [b_{ij}]$, then $C = [c_{ij}]$ where $c_{ij} = a_{ij} + b_{ij}$.
+\subsection{Matrices}
+Matrices, rectangular arrays of numbers, symbols, or expressions arranged in rows and columns, play a crucial role in linear algebra. They provide a structured way to represent vectors, linear transformations, and systems of linear equations. Matrices allow us to handle complex operations such as addition, multiplication, and transposition, thereby enabling the solution of diverse mathematical problems.
 
-\subsection{Matrices Product}
-The product of a matrix $A$ with dimensions $(m \times n)$ and a matrix $B$ with dimensions $(n \times p)$ is defined as a matrix $C$ with dimensions $(m \times p)$. The entry $c_{ij}$ of $C$ is defined as the sum of the products of the entries in row $i$ of $A$ and the corresponding entries in column $j$ of $B$. In other words, $c_{ij} = \sum_{k=1}^n a_{ik} b_{kj}$
-$$
+\theoremstyle{definition}
+\newtheorem*{mtx}{Matrix}
+\begin{mtx}
+A \textbf{matrix} is a rectangular array of numbers, symbols, or expressions arranged in rows and columns. It is denoted as $A = [a_{ij}]$, where $a_{ij}$ represents the element in the $i$-th row and $j$-th column of matrix $A$.
+\end{mtx}
+
+\newtheorem*{mxa}{Matrix Addition}
+\begin{mxa}
+The sum of two matrices $A$ and $B$ of the same dimensions is defined as a matrix $C$, where each entry $c_{ij}$ in $C$ is the sum of the corresponding entries $a_{ij}$ and $b_{ij}$ in matrices $A$ and $B$. Mathematically, 
+\[
+C = [c_{ij}] \text{ where } c_{ij} = a_{ij} + b_{ij}.
+\]
+\end{mxa}
+
+\newtheorem*{mxm}{Matrix Multiplication}
+\begin{mxm} 
+The product of two matrices $A$ and $B$ is a matrix $C$, where each entry $c_{ij}$ is the sum of the products of the corresponding entries in the $i$-th row of $A$ and the $j$-th column of $B$. This operation is defined only when the number of columns in $A$ matches the number of rows in $B$. Mathematically,
+\[
+c_{ij} = \sum_{k=1}^{n} a_{ik} \cdot b_{kj}.
+\]
+\end{mxm}
+
+For example, if:
+\[
 A = \begin{bmatrix}
 1 & 2 \\
 3 & 4
-\end{bmatrix} \\
+\end{bmatrix}, \quad
 B = \begin{bmatrix}
 5 & 6 \\
 7 & 8
-\end{bmatrix} \\
-C = A \times B \\
-= \begin{bmatrix}
+\end{bmatrix},
+\]
+Then,
+\[
+C = A \times B = \begin{bmatrix}
 1 \cdot 5 + 2 \cdot 7 & 1 \cdot 6 + 2 \cdot 8 \\
 3 \cdot 5 + 4 \cdot 7 & 3 \cdot 6 + 4 \cdot 8
-\end{bmatrix} \\
-= \begin{bmatrix}
+\end{bmatrix} = \begin{bmatrix}
 19 & 22 \\
 41 & 50
-\end{bmatrix}
-$$
+\end{bmatrix}.
+\]
 
-\subsection{$\mathbb{Z}_2$ Field and $\mathbb{Z}_2^n$ Vector Space}
-In both cases, we refer to the set $\mathbb{Z}_2$, representing the set of 
-integers \comm{denota come $\bmod 2$} mod 2, i.e., $\{0, 1\}$. 
-In the case of fields, this set combines two operations that remain closed 
-concerning the field set. Regarding the vector space $\mathbb{Z}_2^n$, its 
-made by vectors of size $n$, where each element belongs to $\mathbb{Z}_2$, 
-where addition and scalar multiplication are defined operations, also 
-closed within the set. Furthermore, there is certainty about the validity 
-of certain properties such as associativity and distributivity.
-\comm{sembra un po' sbilanciato definire concetti più semplici come somma
-e prodotto di matrici e glissare su quelli relativi agli spazi vettoriali. Riporta
-le proprietà definitorie di campo e spazio vettoriale.}
+\subsection{Fields and Vector Spaces}
+In linear algebra, fields and vector spaces form the foundational building blocks that underpin much of the theory and applications. A field provides the necessary structure for performing arithmetic operations, while a vector space is a collection of vectors that can be added together and multiplied by scalars from a field. Understanding these concepts is crucial for delving deeper into more advanced topics in linear algebra.
 
-In summary, a field constitutes a structure with specified arithmetic properties, while a vector space denotes a collection of objects (vectors) adhering to specific regulations (dictated by vector addition and scalar multiplication), and these vectors can be formed over a field. Fields furnish the scalars necessary in defining vector spaces.
+\textbf{Fields} are algebraic structures that allow for the operations of addition, subtraction, multiplication, and division (except by zero). They provide the scalar elements that are used in the definition of vector spaces.
+
+\textbf{Vector Spaces}, on the other hand, are collections of vectors that can be scaled and added together in a manner consistent with the rules of the underlying field. These spaces are essential for describing linear transformations and solving systems of linear equations.
+
+\newtheorem*{fld}{Field}
+\begin{fld}
+A \textbf{field} is a set $\mathbb{F}$ equipped with two operations: addition ($+$) and multiplication ($\cdot$), satisfying the following properties:
+
+\begin{enumerate}
+    \item \textbf{Closure:} For all $a, b \in \mathbb{F}$:
+    \[
+    a + b \in \mathbb{F} \quad \text{and} \quad a \cdot b \in \mathbb{F}.
+    \]
+    
+    \item \textbf{Associativity:} For all $a, b, c \in \mathbb{F}$:
+    \[
+    (a + b) + c = a + (b + c) \quad \text{and} \quad (a \cdot b) \cdot c = a \cdot (b \cdot c).
+    \]
+    
+    \item \textbf{Commutativity:} For all $a, b \in \mathbb{F}$:
+    \[
+    a + b = b + a \quad \text{and} \quad a \cdot b = b \cdot a.
+    \]
+    
+    \item \textbf{Distributivity:} For all $a, b, c \in \mathbb{F}$:
+    \[
+    a \cdot (b + c) = (a \cdot b) + (a \cdot c).
+    \]
+    
+    \item \textbf{Identity Elements:} There exist elements $0 \in \mathbb{F}$ and $1 \in \mathbb{F}$ such that for all $a \in \mathbb{F}$:
+    \[
+    a + 0 = a \quad \text{and} \quad a \cdot 1 = a.
+    \]
+    
+    \item \textbf{Inverses:} For every $a \in \mathbb{F}$, there exists an element $-a \in \mathbb{F}$ such that:
+    \[
+    a + (-a) = 0.
+    \]
+    For every non-zero $a \in \mathbb{F}$, there exists an element $a^{-1} \in \mathbb{F}$ such that:
+    \[
+    a \cdot a^{-1} = 1.
+    \]
+\end{enumerate}
+\end{fld}
+
+An example of a field is $\mathbb{Z}_2$, the set of integers $\bmod 2$, with elements $\{0, 1\}$, where the operations of addition and multiplication are defined as follows:
+
+\[
+\begin{array}{c|cc}
++ & 0 & 1 \\
+\hline
+0 & 0 & 1 \\
+1 & 1 & 0 \\
+\end{array}
+\quad \quad
+\begin{array}{c|cc}
+\cdot & 0 & 1 \\
+\hline
+0 & 0 & 0 \\
+1 & 0 & 1 \\
+\end{array}
+\]
+
+
+\newtheorem*{vsp}{Vector Space}
+\begin{vsp}
+A \textbf{vector space} $V$ over a field $\mathbb{F}$ is a set of vectors equipped with two operations: vector addition and scalar multiplication, satisfying the following properties:
+
+\begin{enumerate}
+    \item \textbf{Closure:} For all $u, v \in V$ and $\alpha \in \mathbb{F}$:
+    \[
+    u + v \in V \quad \text{and} \quad \alpha \cdot u \in V.
+    \]
+    
+    \item \textbf{Associativity of Addition:} For all $u, v, w \in V$:
+    \[
+    (u + v) + w = u + (v + w).
+    \]
+    
+    \item \textbf{Commutativity of Addition:} For all $u, v \in V$:
+    \[
+    u + v = v + u.
+    \]
+    
+    \item \textbf{Additive Identity:} There exists a zero vector $0 \in V$ such that for all $u \in V$:
+    \[
+    u + 0 = u.
+    \]
+    
+    \item \textbf{Additive Inverses:} For every $u \in V$, there exists an element $-u \in V$ such that:
+    \[
+    u + (-u) = 0.
+    \]
+    
+    \item \textbf{Distributivity of Scalar Multiplication:} For all $\alpha, \beta \in \mathbb{F}$ and $u \in V$:
+    \[
+    \alpha \cdot (u + v) = (\alpha \cdot u) + (\alpha \cdot v).
+    \]
+    
+    \item \textbf{Distributivity of Scalar Addition:} For all $\alpha, \beta \in \mathbb{F}$ and $u \in V$:
+    \[
+    (\alpha + \beta) \cdot u = (\alpha \cdot u) + (\beta \cdot u).
+    \]
+    
+    \item \textbf{Multiplicative Identity:} For every $u \in V$:
+    \[
+    1 \cdot u = u.
+    \]
+\end{enumerate}
+\end{vsp}
+
+An example of a vector space is $\mathbb{Z}_2^n$, where $n$ is the dimension of the space, and each vector consists of $n$ elements from $\mathbb{Z}_2$. The operations of vector addition and scalar multiplication are performed element-wise.
+
 
 \section{Coding Theory}
-The term coding theory refers to the analysis of code properties and its 
-numerous applications. In the realm of communications and information 
-processing, the concept of a code pertains to a set of rules designed to 
-transform data, such as text, numbers, images, etc., into other forms that are 
-more suitable for storage, transmission, or encryption. %These studies have led to the identification of various fields of application, including data compression and serialization. In the context of our treatise, we will highlight two fundamental concepts to grasp the logic and purpose of the cryptosystem: error control (or channel coding) and data encryption.
-\subsection{Code}
-The code it can seen as a function \comm{no, il codice non è una funzione, è l'insieme
-dei vettori immagine} that given a word $x$ encode that word over 
-a chosen alphabet as $C: X \rightarrow \sum ^*$, where $C(x)$ is the code 
-associated whith $x$. Properties of codes:
-\begin{enumerate}
- \item injective $\rightarrow$ non-singular(the length is arbitrary)
- \item non-singular $\rightarrow$ uniquely decodable
-\end{enumerate}
+Coding theory refers to the analysis of code properties and its numerous applications. In the realm of communications and information processing, the concept of a code pertains to a set of rules designed to transform data, such as text, numbers, or images, into other forms that are more suitable for storage, transmission, or encryption.
 
-\comm{come sopra per gli spazi vettoriali, è il caso di dare definizioni proprie
-anche qui}
-\subsection{Hamming Distance}
-The Hamming distance is a measure used to quantify the dissimilarity between 
-two strings of equal length in information theory, coding theory, and 
-computer science. It calculates the minimum number of substitutions 
-required to change one string into another by altering individual elements.
+\newtheorem*{cd}{Code}
+\begin{cd}
+A code is a set of vectors that represent the encoded form of data. It is not merely a function but rather an ensemble of image vectors over a chosen alphabet.
+\end{cd}
 
-For instance, consider two strings: $101010$ and $111011$. Their Hamming 
-distance is 2 because, to convert the first string into the second, two substitutions are needed: changing the second and fifth elements from $0$ to $1$.
+\newtheorem*{hmm}{Hamming Distance}
+\begin{hmm}
+The Hamming distance is a measure used to quantify the dissimilarity between two strings of equal length. It calculates the minimum number of substitutions required to change one string into another by altering individual elements.
+\end{hmm}
+
+For instance, consider two strings: $101010$ and $111011$. Their Hamming distance is 2 because, to convert the first string into the second, two substitutions are needed: changing the second and fifth elements from $0$ to $1$.
 
 \subsection{Channel Coding}
-The detection and correction of errors in a code ensure the integrity of data 
-information, whether transmitted over noise-exposed channels or for simple 
-storage purposes. The principle is straightforward: redundancy, the addition 
-of seemingly unnecessary information, is essential for anyone wishing to 
-verify data accuracy or recover lost or corrupted information fragments. 
-Various algorithms \comm{non si tratta tanto degli algoritmi, quanto del fatto
-che alcuni codici ammettono algoritmi di decodifica. Quelli che menzioni
-nel seguito sono poi infatti esempi di codici} have been implemented over 
-time, ranging from the most obvious and simple to the most effective and 
-complex, including:
+The detection and correction of errors in a code ensure the integrity of data information, whether transmitted over noise-exposed channels or for simple storage purposes. The principle is straightforward: redundancy, the addition of seemingly unnecessary information, is essential for anyone wishing to verify data accuracy or recover lost or corrupted information fragments. Some codes, such as the repetition code, Hamming code, and extended Hamming code, allow for decoding algorithms to correct errors.
+
 \begin{itemize}
-    \item Repetition Code: a coding scheme that repeats blocks of bits n \comm{le variabili, sempre in math-mode, ovvero $n$, non n} times,
-    determining the correct value between 0 and 1 depending on which repeats 
-    more than $n/2$ times.
-    \item Error-correcting Code: this represents more of an error detection 
-    family.\comm{questo punto è proprio sbagliato: ``error correcting code'' non denota
-    nulla in particolare. A margine, il repetition code, è anch'esso un codice, quindi
-    i due punti non sono separati suggerisco di indicare e descrivere, per le
-    famiglie di codici, il repetition, l'Hamming e l'extended Hamming} 
-    A code with a minimum Hamming distance can identify up to $d - 1$ 
-    errors in a code word (e.g. \textit{d} = 2 $\rightarrow$ Parity bit, 
-    \textit{d} = 4 $\rightarrow$ Extended Hamming).
+    \item \textbf{Repetition Code:} A coding scheme that repeats blocks of bits $n$ times, determining the correct value between 0 and 1 depending on which repeats more than $n/2$ times.
+    \item \textbf{Hamming Code:} A code with a minimum Hamming distance that can detect up to $d - 1$ errors and correct up to $\lfloor (d-1)/2 \rfloor$ errors.
+    \item \textbf{Extended Hamming Code:} A variant of the Hamming code that includes an additional parity bit, increasing the minimum distance and improving error detection capabilities.
 \end{itemize}
 
 \subsection{Generator and Check Matrices}
-In the context where the code $C$ \comm{$\mathcal{C}$} 
-represents a linear subspace of $\mathbb{F}_q^n$, it can be expressed as 
-a linear combination of its codewords, which form a basis typically organized 
-into rows within a generating \comm{generator} matrix $G$. 
-This matrix serves as a representation  of the code itself, simplifying the 
-transformation of data vectors \comm{information words} into code words through 
-matrix multiplication. Subsequently, a check 
-matrix (or parity check matrix) is constructed, characterized by its kernel 
-\footnote{Which is typically the pre-image of 0. An important special case is 
-the kernel of a linear map. The kernel of a matrix, also known as the null space, refers to the kernel of the linear map defined by the matrix.\comm{decisamente, questa non è una footnote, è contenuto da mettere come definizioni nella sezione di preliminari}} being $C$. The code that $H$ can generate is termed the dual code of $C$. When the $G$ matrix takes the form $[\mathbb{I}_k | P]$, it is considered to be in standard form, and consequently, the $H$ matrix appears as $[-P^T | \mathbb{I}_{n-k}]$\comm{questo fatto sembra un po' calato dal cielo, espandi
-il calcolo relativo ad eso}.
+A linear code \(\mathcal{C}\), which represents a subspace of \(\mathbb{F}_q^n\), can be described by a generator matrix \(G\), where the rows of \(G\) form a basis for \(\mathcal{C}\). This matrix allows for the transformation of information words into codewords through matrix multiplication.
+
+To ensure that codewords belong to \(\mathcal{C}\), a check matrix \(H\), also known as a parity check matrix, is constructed. The kernel of \(H\) defines the code \(\mathcal{C}\), meaning any valid codeword \( \mathbf{c} \) satisfies \( H\mathbf{c}^T = \mathbf{0} \).
+
+When \(G\) is in standard form, \( G = [\mathbb{I}_k \mid P] \), where \(\mathbb{I}_k\) is the \(k \times k\) identity matrix and \(P\) is a \(k \times (n-k)\) matrix, the corresponding check matrix \(H\) is given by \( H = [-P^T \mid \mathbb{I}_{n-k}] \). This ensures that the dot product of any codeword with the rows of \(H\) yields the zero vector, validating the codeword as a member of \(\mathcal{C}\).
+
+\newtheorem*{krl}{Kernel}
+\begin{krl}
+The \textbf{kernel} of a linear map (or the \textbf{null space}) is the set of all vectors in the domain that are mapped to the zero vector in the codomain. For a matrix \(A\), the kernel is defined as:
+\[
+\ker(A) = \left\{ \mathbf{x} \in \mathbb{F}^n \mid A\mathbf{x} = \mathbf{0} \right\}.
+\]
+
+\textbf{Properties of the Kernel:}
+\begin{enumerate}
+    \item \textbf{Subspace:} The kernel is a subspace of the domain \(\mathbb{F}^n\).
+    \item \textbf{Dimension:} The dimension of the kernel is called the \textbf{nullity} of \(A\).
+    \item \textbf{Uniqueness of the Zero Vector:} The kernel always contains the zero vector.
+    \item \textbf{Relation to System of Linear Equations:} The kernel corresponds to the solution set of the homogeneous system \(A\mathbf{x} = \mathbf{0}\).
+    \item \textbf{Invariant under Similarity Transformations:} The kernel is invariant under similarity transformations.
+\end{enumerate}
+\end{krl}
+
+
+
 
 \subsection{Cryptographic Coding}
 Cryptographic coding is a field dedicated to securing data integrity, confidentiality, and authentication. Encryption, a key component, converts readable data into secure, unreadable ciphertext, ensuring confidentiality. Decryption, its counterpart, allows authorized users with the correct key to access and transform ciphertext back into its original form for use.
 
-Public-key cryptography, also known as asymmetric cryptography, stands out for its use of key pairs - a public key for encryption and a private key for decryption. This innovation simplifies secure communication by allowing individuals to openly share their public keys while keeping their private keys confidential. This concept plays a pivotal role in protecting digital systems in today's interconnected world.
+Public-key cryptography, also known as asymmetric cryptography, stands out for its use of key pairs—a public key for encryption and a private key for decryption. This innovation simplifies secure communication by allowing individuals to openly share their public keys while keeping their private keys confidential. This concept plays a pivotal role in protecting digital systems in today's interconnected world.
 
