@@ -1,60 +1,13 @@
 \chapter{Theoretical Fundamentals}
 \theoremstyle{definition}
 
-To address the challenges posed by quantum computers, the computer science 
+To address the challenges posed by quantum computers, the computer science
 community has long been engaged in the quest for alternatives to current symmetric and asymmetric encryption algorithms. Concerning the latter, various proposals have been presented to the public and the community, yet only a few have been recognized as valid and genuinely effective against quantum computers. As for other algorithms, we have thus far been unable to demonstrate either their efficacy or inefficacy in the face of quantum computers. Among these is the Alekhnovich cryptosystem, the focus of our exploration in this treatise.
 
 To delve deeper into this cryptosystem, it is essential to introduce several concepts from the fields of coding theory, geometry, and linear algebra. This introduction will enhance the comprehensibility of its implementation, both in terms of logic and procedures.
 
 \section{Linear Algebra}
 Linear algebra, a cornerstone of mathematics, is the study of vector spaces and their transformations. It is fundamental in a wide range of applications, including the solution of systems of linear equations, transformations of multidimensional objects in space, and much more. To undertake these analyses, linear algebra employs various mathematical constructs, including vector spaces, linear equations, and matrices.
-
-\subsection{Matrices}
-Matrices, rectangular arrays of numbers, symbols, or expressions arranged in rows and columns, play a crucial role in linear algebra. They provide a structured way to represent vectors, linear transformations, and systems of linear equations. Matrices allow us to handle complex operations such as addition, multiplication, and transposition, thereby enabling the solution of diverse mathematical problems.
-
-\theoremstyle{definition}
-\newtheorem*{mtx}{Matrix}
-\begin{mtx}
-A \textbf{matrix} is a rectangular array of numbers, symbols, or expressions arranged in rows and columns. It is denoted as $A = [a_{ij}]$, where $a_{ij}$ represents the element in the $i$-th row and $j$-th column of matrix $A$.
-\end{mtx}
-
-\newtheorem*{mxa}{Matrix Addition}
-\begin{mxa}
-The sum of two matrices $A$ and $B$ of the same dimensions is defined as a matrix $C$, where each entry $c_{ij}$ in $C$ is the sum of the corresponding entries $a_{ij}$ and $b_{ij}$ in matrices $A$ and $B$. Mathematically, 
-\[
-C = [c_{ij}] \text{ where } c_{ij} = a_{ij} + b_{ij}.
-\]
-\end{mxa}
-
-\newtheorem*{mxm}{Matrix Multiplication}
-\begin{mxm} 
-The product of two matrices $A$ and $B$ is a matrix $C$, where each entry $c_{ij}$ is the sum of the products of the corresponding entries in the $i$-th row of $A$ and the $j$-th column of $B$. This operation is defined only when the number of columns in $A$ matches the number of rows in $B$. Mathematically,
-\[
-c_{ij} = \sum_{k=1}^{n} a_{ik} \cdot b_{kj}.
-\]
-\end{mxm}
-
-For example, if:
-\[
-A = \begin{bmatrix}
-1 & 2 \\
-3 & 4
-\end{bmatrix}, \quad
-B = \begin{bmatrix}
-5 & 6 \\
-7 & 8
-\end{bmatrix},
-\]
-Then,
-\[
-C = A \times B = \begin{bmatrix}
-1 \cdot 5 + 2 \cdot 7 & 1 \cdot 6 + 2 \cdot 8 \\
-3 \cdot 5 + 4 \cdot 7 & 3 \cdot 6 + 4 \cdot 8
-\end{bmatrix} = \begin{bmatrix}
-19 & 22 \\
-41 & 50
-\end{bmatrix}.
-\]
 
 \subsection{Fields and Vector Spaces}
 In linear algebra, fields and vector spaces form the foundational building blocks that underpin much of the theory and applications. A field provides the necessary structure for performing arithmetic operations, while a vector space is a collection of vectors that can be added together and multiplied by scalars from a field. Understanding these concepts is crucial for delving deeper into more advanced topics in linear algebra.
@@ -72,27 +25,27 @@ A \textbf{field} is a set $\mathbb{F}$ equipped with two operations: addition ($
     \[
     a + b \in \mathbb{F} \quad \text{and} \quad a \cdot b \in \mathbb{F}.
     \]
-    
+
     \item \textbf{Associativity:} For all $a, b, c \in \mathbb{F}$:
     \[
     (a + b) + c = a + (b + c) \quad \text{and} \quad (a \cdot b) \cdot c = a \cdot (b \cdot c).
     \]
-    
+
     \item \textbf{Commutativity:} For all $a, b \in \mathbb{F}$:
     \[
     a + b = b + a \quad \text{and} \quad a \cdot b = b \cdot a.
     \]
-    
+
     \item \textbf{Distributivity:} For all $a, b, c \in \mathbb{F}$:
     \[
     a \cdot (b + c) = (a \cdot b) + (a \cdot c).
     \]
-    
+
     \item \textbf{Identity Elements:} There exist elements $0 \in \mathbb{F}$ and $1 \in \mathbb{F}$ such that for all $a \in \mathbb{F}$:
     \[
     a + 0 = a \quad \text{and} \quad a \cdot 1 = a.
     \]
-    
+
     \item \textbf{Inverses:} For every $a \in \mathbb{F}$, there exists an element $-a \in \mathbb{F}$ such that:
     \[
     a + (-a) = 0.
@@ -132,37 +85,37 @@ A \textbf{vector space} $V$ over a field $\mathbb{F}$ is a set of vectors equipp
     \[
     u + v \in V \quad \text{and} \quad \alpha \cdot u \in V.
     \]
-    
+
     \item \textbf{Associativity of Addition:} For all $u, v, w \in V$:
     \[
     (u + v) + w = u + (v + w).
     \]
-    
+
     \item \textbf{Commutativity of Addition:} For all $u, v \in V$:
     \[
     u + v = v + u.
     \]
-    
+
     \item \textbf{Additive Identity:} There exists a zero vector $0 \in V$ such that for all $u \in V$:
     \[
     u + 0 = u.
     \]
-    
+
     \item \textbf{Additive Inverses:} For every $u \in V$, there exists an element $-u \in V$ such that:
     \[
     u + (-u) = 0.
     \]
-    
+
     \item \textbf{Distributivity of Scalar Multiplication:} For all $\alpha, \beta \in \mathbb{F}$ and $u \in V$:
     \[
     \alpha \cdot (u + v) = (\alpha \cdot u) + (\alpha \cdot v).
     \]
-    
+
     \item \textbf{Distributivity of Scalar Addition:} For all $\alpha, \beta \in \mathbb{F}$ and $u \in V$:
     \[
     (\alpha + \beta) \cdot u = (\alpha \cdot u) + (\beta \cdot u).
     \]
-    
+
     \item \textbf{Multiplicative Identity:} For every $u \in V$:
     \[
     1 \cdot u = u.
@@ -171,6 +124,75 @@ A \textbf{vector space} $V$ over a field $\mathbb{F}$ is a set of vectors equipp
 \end{vsp}
 
 An example of a vector space is $\mathbb{Z}_2^n$, where $n$ is the dimension of the space, and each vector consists of $n$ elements from $\mathbb{Z}_2$. The operations of vector addition and scalar multiplication are performed element-wise.
+
+\subsection{Matrices}
+Matrices, rectangular arrays of numbers, symbols, or expressions arranged in rows and columns, play a crucial role in linear algebra. They provide a structured way to represent vectors, linear transformations, and systems of linear equations. Matrices allow us to handle complex operations such as addition, multiplication, and transposition, thereby enabling the solution of diverse mathematical problems.
+
+\theoremstyle{definition}
+\newtheorem*{mtx}{Matrix}
+\begin{mtx}
+A \textbf{matrix} is a rectangular array of numbers, symbols, or expressions arranged in rows and columns. It is denoted as $A = [a_{ij}]$, where $a_{ij}$ represents the element in the $i$-th row and $j$-th column of matrix $A$.
+\end{mtx}
+
+\newtheorem*{mxa}{Matrix Addition}
+\begin{mxa}
+The sum of two matrices $A$ and $B$ of the same dimensions is defined as a matrix $C$, where each entry $c_{ij}$ in $C$ is the sum of the corresponding entries $a_{ij}$ and $b_{ij}$ in matrices $A$ and $B$. Mathematically,
+\[
+C = [c_{ij}] \text{ where } c_{ij} = a_{ij} + b_{ij}.
+\]
+\end{mxa}
+
+\newtheorem*{mxm}{Matrix Multiplication}
+\begin{mxm}
+The product of two matrices $A$ and $B$ is a matrix $C$, where each entry $c_{ij}$ is the sum of the products of the corresponding entries in the $i$-th row of $A$ and the $j$-th column of $B$. This operation is defined only when the number of columns in $A$ matches the number of rows in $B$. Mathematically,
+\[
+c_{ij} = \sum_{k=1}^{n} a_{ik} \cdot b_{kj}.
+\]
+\end{mxm}
+
+For example, if:
+\[
+A = \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}, \quad
+B = \begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix},
+\]
+Then,
+\[
+C = A \times B = \begin{bmatrix}
+1 \cdot 5 + 2 \cdot 7 & 1 \cdot 6 + 2 \cdot 8 \\
+3 \cdot 5 + 4 \cdot 7 & 3 \cdot 6 + 4 \cdot 8
+\end{bmatrix} = \begin{bmatrix}
+19 & 22 \\
+41 & 50
+\end{bmatrix}.
+\]
+
+\subsection{Kernel of a Matrix}
+A key concept related to matrices and linear transformations in vector spaces is the \textbf{kernel}. The kernel provides insight into the solutions of linear systems and the properties of the transformations defined by matrices.
+
+\newtheorem*{krl}{Kernel}
+\begin{krl}
+The \textbf{kernel} of a linear map (or the \textbf{null space}) is the set of all vectors in the domain that are mapped to the zero vector in the codomain. For a matrix \(A\), the kernel is defined as:
+\[
+\ker(A) = \left\{ \mathbf{x} \in \mathbb{F}^n \mid A\mathbf{x} = \mathbf{0} \right\}.
+\]
+
+\textbf{Properties of the Kernel:}
+\begin{enumerate}
+    \item \textbf{Subspace:} The kernel is a subspace of the domain \(\mathbb{F}^n\).
+    \item \textbf{Dimension:} The dimension of the kernel is called the \textbf{nullity} of \(A\).
+    \item \textbf{Uniqueness of the Zero Vector:} The kernel always contains the zero vector.
+    \item \textbf{Relation to System of Linear Equations:} The kernel corresponds to the solution set of the homogeneous system \(A\mathbf{x} = \mathbf{0}\).
+    \item \textbf{Invariant under Similarity Transformations:} The kernel is invariant under similarity transformations.
+\end{enumerate}
+\end{krl}
+
+Understanding the kernel is crucial in many areas, including coding theory and cryptography, where it plays a role in defining codes and analyzing their properties.
 
 
 \section{Coding Theory}
@@ -204,28 +226,22 @@ To ensure that codewords belong to \(\mathcal{C}\), a check matrix \(H\), also k
 
 When \(G\) is in standard form, \( G = [\mathbb{I}_k \mid P] \), where \(\mathbb{I}_k\) is the \(k \times k\) identity matrix and \(P\) is a \(k \times (n-k)\) matrix, the corresponding check matrix \(H\) is given by \( H = [-P^T \mid \mathbb{I}_{n-k}] \). This ensures that the dot product of any codeword with the rows of \(H\) yields the zero vector, validating the codeword as a member of \(\mathcal{C}\).
 
-\newtheorem*{krl}{Kernel}
-\begin{krl}
-The \textbf{kernel} of a linear map (or the \textbf{null space}) is the set of all vectors in the domain that are mapped to the zero vector in the codomain. For a matrix \(A\), the kernel is defined as:
-\[
-\ker(A) = \left\{ \mathbf{x} \in \mathbb{F}^n \mid A\mathbf{x} = \mathbf{0} \right\}.
-\]
-
-\textbf{Properties of the Kernel:}
-\begin{enumerate}
-    \item \textbf{Subspace:} The kernel is a subspace of the domain \(\mathbb{F}^n\).
-    \item \textbf{Dimension:} The dimension of the kernel is called the \textbf{nullity} of \(A\).
-    \item \textbf{Uniqueness of the Zero Vector:} The kernel always contains the zero vector.
-    \item \textbf{Relation to System of Linear Equations:} The kernel corresponds to the solution set of the homogeneous system \(A\mathbf{x} = \mathbf{0}\).
-    \item \textbf{Invariant under Similarity Transformations:} The kernel is invariant under similarity transformations.
-\end{enumerate}
-\end{krl}
-
-
-
-
 \subsection{Cryptographic Coding}
 Cryptographic coding is a field dedicated to securing data integrity, confidentiality, and authentication. Encryption, a key component, converts readable data into secure, unreadable ciphertext, ensuring confidentiality. Decryption, its counterpart, allows authorized users with the correct key to access and transform ciphertext back into its original form for use.
 
 Public-key cryptography, also known as asymmetric cryptography, stands out for its use of key pairs—a public key for encryption and a private key for decryption. This innovation simplifies secure communication by allowing individuals to openly share their public keys while keeping their private keys confidential. This concept plays a pivotal role in protecting digital systems in today's interconnected world.
 
+\paragraph{Computational Complexity}
+Understanding the security of cryptographic systems requires a grasp of computational complexity, particularly the classification of problems based on the time it takes to solve them relative to the size of the input. Problems that can be solved in polynomial time, denoted as $P$, are considered feasible because the time required grows at a manageable rate as the input size increases. However, many problems, including those crucial to cryptography, belong to a class called $NP$ (nondeterministic polynomial time), where verifying a given solution is feasible, but finding the solution may not be. $NP$-complete problems, a subset of $NP$, are particularly significant because they are the hardest problems in $NP$; solving any $NP$-complete problem efficiently would imply that all $NP$ problems could also be solved efficiently.
+
+\paragraph{Decisional Decoding Hypothesis}
+The Decisional Decoding Hypothesis posits that no polynomial-time decoding algorithm can distinguish between a random vector and a vector that is a codeword corrupted by noise of a specific weight, given a random code defined by either a uniformly random generating matrix or a uniform random parity-check matrix. This hypothesis plays a crucial role in assessing the security of certain cryptographic systems, ensuring that distinguishing between random noise and encoded messages is computationally infeasible.
+
+\newtheorem*{ddh}{DDH}
+\begin{ddh}
+The decisional decoding hypothesis assumes that for parameters \( t \), \( k \), and \( n \) within bounds \( 0 < R_1 \leq \frac{k}{n} \leq R_2 < 1 \), no polynomial-time algorithm \( A \) can distinguish with non-negligible advantage between:
+\end{ddh}
+\begin{itemize}
+    \item \textbf{Case 1:} A uniformly random vector \( \mathbf{u} \in \mathbb{F}_2^n \).
+    \item \textbf{Case 2:} A vector \( \mathbf{c} + \mathbf{e} \), where \( \mathbf{c} \) is a random codeword from a linear code \( C \) and \( \mathbf{e} \) is a noise vector of Hamming weight \( t \).
+\end{itemize}
