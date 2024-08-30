@@ -1,0 +1,1 @@
+/usr/lib64/ccache/cc CMakeFiles/MyProject.dir/src/arrays.c.o CMakeFiles/MyProject.dir/src/bitop.c.o CMakeFiles/MyProject.dir/src/main.c.o CMakeFiles/MyProject.dir/src/seed.c.o CMakeFiles/MyProject.dir/src/xoshiro.c.o -o bin/MyProject  -lrandombytes 

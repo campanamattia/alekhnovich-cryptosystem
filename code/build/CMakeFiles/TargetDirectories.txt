@@ -1,0 +1,3 @@
+/home/mattiacampana/Developer/PII_Campana/code/build/CMakeFiles/MyProject.dir
+/home/mattiacampana/Developer/PII_Campana/code/build/CMakeFiles/edit_cache.dir
+/home/mattiacampana/Developer/PII_Campana/code/build/CMakeFiles/rebuild_cache.dir
