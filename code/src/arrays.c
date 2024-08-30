@@ -222,7 +222,7 @@ uint64_t *array_sum(uint64_t *a, uint64_t *b, int len) {
 }
 
 struct arr *array_xor(struct arr *a, struct arr *b) {
-    if (a == NULL || b == NULL || a->len != b->len)
+    if (a == NULL || b == NULL || a->len != b->len || a->data == NULL || b->data == NULL)
         return NULL;
 
     struct arr *res = calloc(1, sizeof(struct arr));
@@ -230,13 +230,11 @@ struct arr *array_xor(struct arr *a, struct arr *b) {
         return NULL;
 
     res->len = a->len;
-    res->data = calloc(real_dim(res->len), sizeof(uint64_t));
-    if (res->data == NULL) {
-        free(res);
+    res->data = calloc(real_dim(a->len), sizeof(uint64_t));
+    if (res->data == NULL)
         return NULL;
-    }
 
-    for (int i = 0; i < res->len; i++)
+    for (int i = 0; i < real_dim(res->len); i++)
         res->data[i] = a->data[i] ^ b->data[i];
 
     return res;
@@ -305,10 +303,8 @@ struct arr *concat_arrays(struct arr *a, struct arr *b) {
 
     res->len = a->len + b->len;
     res->data = calloc(a_len + b_len, sizeof(uint64_t));
-    if (res->data == NULL) {
-        free(res);
+    if (res->data == NULL)
         return NULL;
-    }
 
     for (int i = 0; i < a_len; i++)
         res->data[i] = a->data[i];
