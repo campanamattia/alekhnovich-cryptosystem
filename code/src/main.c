@@ -1,10 +1,11 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
 
 #include "../include/test.h"
-#include "../include/alekhnovich.h"
+#include "../include/api.h"
 
 //Command enumeration
 typedef enum { GENERATE, ENCRYPT, DECRYPT, CORRECT, TEST, INVALID } Command;
@@ -23,7 +24,7 @@ int main(int argc, char *argv[]) {
 
     switch(cmd) {
         case TEST:
-            test();
+            test(argc > 2 ? atoi(argv[2]) : 0);
             break;
 
         case GENERATE:
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
                 print_err(argv[0], "encrypt <message> <key_a_path> <key_y_path>\n");
                 return 2;
             }
-            encrypt(convert_to_array(argv[2]), argv[3], argv[4]);
+            encrypt(argv[2], argv[3], argv[4]);
             break;
 
         case DECRYPT:

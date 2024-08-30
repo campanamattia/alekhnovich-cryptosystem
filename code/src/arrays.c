@@ -216,7 +216,7 @@ uint64_t *array_sum(uint64_t *a, uint64_t *b, int len) {
         return NULL;
 
     for (int i = 0; i < len; i++)
-        res[i] = a[i] | b[i];
+        res[i] = a[i] ^ b[i];
 
     return res;
 }

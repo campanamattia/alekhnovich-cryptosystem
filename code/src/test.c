@@ -5,9 +5,33 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "../include/alekhnovich.h"
+#include "../include/backend.h"
 
-void test() {
+#define TEST1 "target/test1.bin"
+#define TEST2 "target/test2.bin"
+#define TEST3 "target/test3.bin"
+
+void shortcut( );
+
+void handle_error(const char *);
+void free_resources(struct mat *, struct mat *, struct mat *, struct mat *, struct arr *, struct arr *, struct arr *);
+
+struct arr* generate_random_message(int );
+void generate_matrices(struct mat **, struct mat **, struct mat **);
+void check_key_reading(struct mat *, struct mat *, struct mat *);
+void encryption_decryption_process(struct mat *, struct mat *, struct mat *, struct arr *);
+void encrypt_decrypt_shortcut(struct mat *, struct mat *, struct mat *, struct arr *, const char *);
+void print_hamming_distance(struct arr *, struct arr *);
+
+int check_mat(struct mat *, struct mat *);
+int check_arr(struct arr *, struct arr *);
+int delta_arr(struct arr *, struct arr *);
+
+void test(int mod) {
+    if(mod){
+        shortcut();
+        return;
+    }
     fprintf(stdout, "Starting the testing process...\n");
 
     struct mat *aw = NULL, *sw = NULL, *ew = NULL, *yw = NULL;
@@ -218,7 +242,7 @@ void encryption_decryption_process(struct mat *ar, struct mat *yr, struct mat *s
 
 void print_hamming_distance(struct arr *msg, struct arr *dec_msg) {
     int distance = delta_arr(msg, dec_msg);
-    fprintf(stdout, "Hamming distance from original message: %d\n", distance);
+    fprintf(stdout, "Hamming distance from original message: %d\n\n", distance);
 }
 
 int check_mat(struct mat *w, struct mat *r){
@@ -259,4 +283,100 @@ int delta_arr(struct arr *o, struct arr *e) {
     }
 
     return ris;
+}
+
+void shortcut(){
+    struct mat *ar = read_key(A_PUB);
+    struct mat *yr = read_key(Y_PUB);
+    struct mat *sr = read_key(PRIVA);
+
+    struct arr *msg = generate_random_message(L);
+    write_packet(WRGEN, msg);
+
+    encrypt_decrypt_shortcut(ar, yr, sr, msg, TEST1);
+    encrypt_decrypt_shortcut(ar, yr, sr, msg, TEST2);
+    encrypt_decrypt_shortcut(ar, yr, sr, msg, TEST3);
+
+    free_resources(ar, yr, sr, NULL, msg, NULL, NULL);
+
+    fprintf(stdout, "Trying to correct message.\n\n");
+
+    struct arr *t1, *t2, *t3;
+
+    t1 = read_packet(TEST1);
+    t2 = read_packet(TEST2);
+    t3 = read_packet(TEST3);
+
+    if (t1 == NULL || t2 == NULL || t3 == NULL) {
+        handle_error("Failed to read test packets.");
+        return;
+    }
+
+    struct arr *corrected = correct_errors(t1, t2, t3);
+    if (corrected == NULL) {
+        handle_error("Failed to correct errors.");
+        return;
+    }
+
+    fprintf(stdout, "After correcting code w/ three test...\n");
+    print_hamming_distance(msg, corrected);
+    write_packet(PLAIN, corrected);
+}
+
+void encrypt_decrypt_shortcut(struct mat *ar, struct mat *yr, struct mat *sr, struct arr *msg, const char *filename){
+    struct arr *e = calloc(1ULL, sizeof(struct arr));
+    if (e == NULL) {
+        handle_error("Memory allocation failed for e struct.");
+        return;
+    }
+    e->len = N;
+    e->data = weight_array(N, T);
+    if (e->data == NULL) {
+        handle_error("Memory allocation failed for e data.");
+        free_resources(NULL, NULL, NULL, NULL, msg, e, NULL);
+        return;
+    }
+
+    struct arr *w_nnc = mat_arr_mul(ar, e);
+    if (w_nnc == NULL) {
+        handle_error("Failed to multiply matrix with array.");
+        free_resources(NULL, NULL, NULL, NULL, msg, e, NULL);
+        return;
+    }
+
+    struct arr *tmp_arr = mat_arr_mul(yr, e);
+    if (tmp_arr == NULL) {
+        handle_error("Failed to multiply matrix with array.");
+        free_resources(NULL, NULL, NULL, NULL, msg, e, w_nnc);
+        return;
+    }
+
+    struct arr *w_word = array_xor(tmp_arr, msg);
+    if (w_word == NULL) {
+        handle_error("Failed to XOR arrays.");
+        free_resources(NULL, NULL, NULL, NULL, msg, e, tmp_arr);
+        return;
+    }
+
+    struct arr *dec_key = mat_arr_mul(sr, w_nnc);
+    if (dec_key == NULL) {
+        handle_error("Failed to decrypt key.");
+        free_resources(NULL, NULL, NULL, NULL, msg, e, tmp_arr);
+        return;
+    }
+
+    struct arr *dec_msg = array_xor(w_word, dec_key);
+    if (dec_msg == NULL) {
+        handle_error("Failed to decrypt message.");
+        free_resources(NULL, NULL, NULL, NULL, msg, e, tmp_arr);
+        return;
+    }
+
+    write_packet(filename, dec_msg);
+
+    fprintf(stdout, "Finished %s.\n", filename);
+
+    print_hamming_distance(msg, dec_msg);
+
+    free_resources(NULL, NULL, NULL, NULL, e, dec_key, dec_msg);
 }
