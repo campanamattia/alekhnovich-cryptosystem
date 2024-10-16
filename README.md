@@ -36,21 +36,13 @@ The project implements core functionalities of the Alekhnovich cryptosystem, foc
 - **Decryption**: Decryption leverages the private key matrix `S` to decrypt the ciphertext and recover the original message. The error correction mechanism helps mitigate the impact of noise introduced during encryption, ensuring the integrity of the decrypted message.
 - **Helper Functions**: Several helper functions are implemented to handle matrix manipulation, bitwise operations, random seed initialization, and random number generation. These include `bitop.h` for bitwise operations, `arrays.h` for handling array-related tasks, and `xoshiro.h` for efficient pseudo-random number generation.
 
-### Example Usage
-The following pseudocode provides a high-level overview of the encryption process in Alekhnovich's cryptosystem:
-```pseudo
-// Generate random vector e with fixed weight t
-vector e = weighted_array(n, t);
+## Most Enlighting Algorithms
 
-// Compute nonce and cipher message
-nonce = row_column(A, e);
-cipher_msg = cipher(Y, e, message);
+### Transposition Algorithm
+![alg](https://github.com/campanamattia/alekhnovich-cryptosystem/blob/master/report/ppt/img/code_screen/transposed.png)
 
-// Create encrypted packet
-encrypted_packet = encryption(message, A, Y);
-```
-Consider adding a **screenshot** or **code snippet** of the actual implementation for better understanding of the process. A visual representation of the steps would help illustrate the complexity involved in the encryption process.
-
+### Correcting Algorithm
+![alg](https://github.com/campanamattia/alekhnovich-cryptosystem/blob/master/report/ppt/img/code_screen/correcting.png)
 ## Building and Running the Project
 To build the project, follow these steps:
 ```sh
@@ -75,9 +67,7 @@ Ensure that the `randombytes` library is installed and available in your system'
 The Alekhnovich cryptosystem presents a promising solution for securing data against quantum computing threats. This project provides a detailed exploration of its theoretical basis, practical implementation, and potential real-world applications. The key generation, encryption, and decryption processes have been implemented and tested to demonstrate the cryptosystem's capabilities. Further research and development are needed to improve the performance and integration of this cryptosystem with existing security standards.
 
 ## Screenshots and Diagrams
-- **Key Generation Output**: Add a screenshot of the key generation process to illustrate the non-deterministic nature of the keys due to random matrix generation.
-- **Flow Diagram of Encryption/Decryption**: A flowchart illustrating the key steps in the encryption and decryption process would help provide a clearer understanding of how the algorithm functions and the interactions between its components.
-- **Project Structure Diagram**: Include a diagram showing the different components of the project and their relationships. This will help new developers quickly understand the project structure and navigate through the codebase.
+![example](https://github.com/campanamattia/alekhnovich-cryptosystem/blob/master/report/ppt/img/code_screen/shell_1.png)
 
 ## References
 1. Alekhnovich, M. (2011). *More on average case vs approximation complexity*. Comput. Complex., 20(4):755–786.
