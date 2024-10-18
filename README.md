@@ -39,10 +39,144 @@ The project implements core functionalities of the Alekhnovich cryptosystem, foc
 ## Most Enlighting Algorithms
 
 ### Transposition Algorithm
-![alg](https://github.com/campanamattia/alekhnovich-cryptosystem/blob/master/report/ppt/img/code_screen/transposed.png)
+```c
+struct mat *matrix_transpose(struct mat *m) {
+    if (m == NULL)
+        return NULL;
 
-### Correcting Algorithm
-![alg](https://github.com/campanamattia/alekhnovich-cryptosystem/blob/master/report/ppt/img/code_screen/correcting.png)
+    struct mat *t = calloc(1, sizeof(struct mat));
+    if (t == NULL)
+        return NULL;
+
+    t->rows = m->cols;
+    t->cols = m->rows;
+
+    t->data = calloc(t->rows, sizeof(uint64_t *));
+    if (t->data == NULL) {
+        free(t);
+        return NULL;
+    }
+
+    for (int i = 0; i < t->rows; i++) {
+        t->data[i] = calloc(real_dim(t->cols), sizeof(uint64_t));
+        if (t->data[i] == NULL) {
+            free_mat(t);
+            return NULL;
+        }
+    }
+
+    for (int i = 0; i < m->rows; i++) {
+        for (int j = 0; j < m->cols; j++) {
+            int bit_pos_in_block = j % SIZE;
+            int block_index = j / SIZE;
+
+            if (m->data[i][block_index] & (1ULL << bit_pos_in_block)) {
+                int transpose_block_index = i / SIZE;
+                int transpose_bit_pos_in_block = i % SIZE;
+
+                t->data[j][transpose_block_index] |= (1ULL << transpose_bit_pos_in_block);
+            }
+        }
+    }
+
+    return t;
+}
+```
+### Matrix Multiply Algorithm
+```c
+struct mat *matrix_mul(struct mat *a, struct mat *b) {
+    if (a == NULL || b == NULL || a->cols != b->rows)
+        return NULL;
+
+    struct mat *c = calloc(1, sizeof(struct mat));
+    if (c == NULL)
+        return NULL;
+
+    c->rows = a->rows;
+    c->cols = b->cols;
+
+    c->data = calloc(c->rows, sizeof(uint64_t *));
+    if (c->data == NULL) {
+        free(c);
+        return NULL;
+    }
+
+    for (int i = 0; i < c->rows; i++) {
+        c->data[i] = calloc(real_dim(c->cols), sizeof(uint64_t));
+        if (c->data[i] == NULL) {
+            free_mat(c);
+            return NULL;
+        }
+    }
+
+    struct mat *bt = matrix_transpose(b);
+    if (bt == NULL) {
+        free_mat(c);
+        return NULL;
+    }
+
+    for (int i = 0; i < a->rows; i++) {
+        for (int j = 0; j < bt->rows; j++) {
+            c->data[i][j / SIZE] |= shift_bit(bax(a->data[i], bt->data[j], real_dim(a->cols)), j % SIZE);
+        }
+    }
+
+    free_mat(bt);
+    return c;
+}
+```
+### Encrypt Algorithm
+```c
+void encrypt(uint64_t *mex, const char *a_path, const char *y_path) {
+    if(mex == NULL)
+        return;
+
+    struct mat *a, *y;
+    struct arr *nnc, *word, *tmp;
+
+    a = read_key(a_path);
+
+    y = read_key(y_path);
+
+    if(a == NULL || y == NULL)
+        return;
+
+    struct arr *e = calloc(1ULL, sizeof(struct mat));
+    if(e == NULL)
+        return;
+
+    e->len = N;
+
+    e->data = weight_array(e->len, T);
+    if(e->data == NULL)
+        return;
+
+    nnc = mat_arr_mul(a, e);
+    tmp = mat_arr_mul(y, e);
+    if(nnc == NULL || tmp == NULL)
+        return;
+
+    word = calloc(1ULL, sizeof(struct arr));
+    if(word == NULL)
+        return;
+
+    struct arr *message = calloc(1ULL, sizeof(struct arr *));
+    if(message == NULL)
+        return;
+
+    message->len = L;
+    message->data = mex;
+
+    word = array_xor(message, tmp);
+
+    if(word->data == NULL)
+        return;
+
+    write_packet(WRNNC, nnc);
+    write_packet(ENCRY, word);
+}
+```
+
 ## Building and Running the Project
 To build the project, follow these steps:
 ```sh
